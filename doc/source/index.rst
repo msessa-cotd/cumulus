@@ -3,7 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to cumulus's documentation!
+Welcome to cumulus documentation!
 ===================================
 
 Contents:
@@ -11,7 +11,10 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+.. automodule:: cumulus.cfstack
 
+.. autoclass:: CFStack
+    :members: __init__
 
 Indices and tables
 ==================

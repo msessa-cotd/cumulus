@@ -5,10 +5,24 @@ class CumulusException(Exception):
     """
     pass
 
+
+class UnconfiguredError(CumulusException):
+    """
+    This exception is raised when a certain operation is requested while the object is in an unconfigured state
+    """
+    pass
+
+class TemplateError(CumulusException):
+    """
+    This exception is raised when an unmanageable error is encountered when processing a CF JSON template
+    """
+    pass
+
 class StackStatusInconsistent(CumulusException):
     """
     This exception is raised when a stack is found in an inconsistent or unexpected state
     """
+
 
 class DependencyGraphError(CumulusException):
     """
@@ -23,7 +37,8 @@ class ManipulationError(DependencyGraphError):
     """
     pass
 
-class LookupError(DependencyGraphError):
+
+class NodeLookupError(DependencyGraphError):
     """
     This exception is raised when a selected node cannot be found in the graph
     """

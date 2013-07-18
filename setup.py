@@ -14,7 +14,7 @@ setup(
         description='Manages AWS Cloudformation stacks across multiple CF templates',
         packages = find_packages(),
         include_package_data = True,
-        install_requires=['PyYAML', 'argparse', 'boto'],
-        tests_require=['nose'],
+        install_requires=['PyYAML', 'argparse', 'boto', 'requests'],
+        tests_require=['nose', 'mock'],
         scripts=glob('bin/*'),
 )

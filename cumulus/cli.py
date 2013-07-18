@@ -1,6 +1,7 @@
 import sys
+import logging
+import logging.config
 import argparse
-
 
 def cli_main(argv=None):
 
@@ -34,4 +35,25 @@ def cli_main(argv=None):
     parser_delete = subparsers.add_parser('delete', help='Delete stacks on CloudFormation')
     parser_delete.add_argument("-s", "--stack", dest="stackname", required=False, help="Select a specific stack")
 
+    log.debug("Parsing command line arguments")
     args = conf_parser.parse_args(args=argv)
+
+    # Setup logging
+    LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    cumulus_numeric_level = getattr(logging, args.loglevel.upper(), None)
+    boto_numeric_level = getattr(logging, args.botologlevel.upper(), None)
+
+    log_formatter = logging.Formatter(LOG_FORMAT)
+    log_handler = logging.StreamHandler(stream=sys.stderr)
+    log_handler.setFormatter(log_formatter)
+
+    cumulus_log = logging.getLogger('cumulus')
+    cumulus_log.addHandler(log_handler)
+    cumulus_log.setLevel(cumulus_numeric_level)
+
+    boto_log = logging.getLoggerClass('boto')
+    cumulus_log.addHandler(log_handler)
+    cumulus_log.setLevel(boto_numeric_level)
+
+
+

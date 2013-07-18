@@ -3,7 +3,7 @@ import logging
 import simplejson
 import time
 import yaml
-from CFStack import CFStack
+from CFStack_old import CFStack
 from boto import cloudformation
 
 from .exceptions import DependencyLoopError, StackStatusInconsistent
