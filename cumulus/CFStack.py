@@ -1,5 +1,3 @@
-import os
-import errno
 import logging
 import json
 import requests
@@ -8,6 +6,7 @@ from .exceptions import TemplateError
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
+
 
 class CFStack(object):
 
@@ -24,6 +23,7 @@ class CFStack(object):
         :return: A CFStack object
         :rtype: cumulus.cfstack.CFStack
         """
+        self.name = name
         self.json_template = json_template
         self.stack_obj = None
         self.dependencies = list()
@@ -43,7 +43,6 @@ class CFStack(object):
             self._external_template = False
             with open(self.json_template, 'r') as tpl_file:
                 self.template_content = tpl_file.read()
-
 
     def analyse_template(self):
         log.info("Analysing template data")
@@ -80,7 +79,6 @@ class CFStack(object):
             # This stack has no outputs, this is accepted
             pass
 
-
     def validate_template(self):
         """
         This method will perform validation of the JSON template.
@@ -91,7 +89,6 @@ class CFStack(object):
         """
         pass
         #if self._online_validation
-
 
     def add_dependency(self, parent):
         """
