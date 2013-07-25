@@ -23,7 +23,8 @@ class StackDependencyGraph(object):
             self.node_deps[node] = []
             self.node_successors[node] = []
         else:
-            raise KeyError("Node %s already present in the graph" % node)
+            # Node is already present, no need to whinge about it
+            pass
 
     def add_dependency(self, parent, children):
         """
@@ -33,7 +34,6 @@ class StackDependencyGraph(object):
         :type parent: str
         :param children: The children in the relation between the two nodes
         :type children: str
-        :raise KeyError: If either parent or children are not present in the graph node list
         """
         log.debug("Adding dependency to graph: %s requires %s", children, parent)
         if parent in self.node_deps and parent in self.node_successors:
@@ -44,9 +44,11 @@ class StackDependencyGraph(object):
                 else:
                     raise MutualDependencyError(parent, children)
             else:
-                raise KeyError("Node %s not present in graph" % children)
+                log.debug("Node %s not present in graph, it will be added implicitly" % children)
+                self.add_node(children)
         else:
-            raise KeyError("Node %s not present in graph" % parent)
+            log.debug("Node %s not present in graph, it will be added implicitly" % parent)
+            self.add_node(parent)
 
     def del_node(self, node):
         """

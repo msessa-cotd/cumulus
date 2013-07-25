@@ -1,36 +1,22 @@
 import unittest
-from cumulus.exceptions import UnconfiguredError
+import mock
 from cumulus.cumulo import CumuloStack
 
 class TestCumulo(unittest.TestCase):
 
     def test_setregion(self):
-        cs = CumuloStack(name='test_case')
-        cs.region = 'us-east-1'
-
+        cs = CumuloStack(name='test_case', region='us-east-1')
         self.assertEqual(cs.region, 'us-east-1')
 
     def test_set_invalid_region(self):
-        cs = CumuloStack(name='test_case')
+        self.assertRaises(AttributeError, CumuloStack, name='test_case', region='a-galaxy-far-away')
 
-        self.assertRaises(AttributeError, cs.region, 'a-galaxy-far-away')
+    def test_add_cfstack(self):
+        cs = CumuloStack(name='test_case', region='us-east-1')
 
-    def test_add_arn(self):
-        cs = CumuloStack(name='test_case')
-        cs.region = 'us-east-1'
-
-        arn = "arn:aws:sns:us-east-1:123456789012:cf_events"
-        cs.add_sns_topic(arn=arn)
-
-    def test_add_arn_no_region(self):
-        cs = CumuloStack(name='test_case')
-
-        arn = "arn:aws:sns:sa-east-1:123456789012:cf_events"
-        self.assertRaises(UnconfiguredError, cs.add_sns_topic, arn=arn)
-
-    def test_add_arn_different_region(self):
-        cs = CumuloStack(name='test_case')
-        cs.region = 'us-east-1'
-
-        arn = "arn:aws:sns:sa-east-1:123456789012:cf_events"
-        self.assertRaises(ValueError, cs.add_sns_topic, arn=arn)
+        with mock.patch("cumulus.cfstack.CFStack") as mock_cfstack:
+            mock_cfstack.name = 'substack'
+            mock_cfstack.dependencies = ['dep1', 'dep2']
+            cs.add_substack(mock_cfstack)
+            self.assertDictContainsSubset({'substack' : mock_cfstack}, cs._substacks)
+            self.assertItemsEqual(['substack'], cs.list_substacks())

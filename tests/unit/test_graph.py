@@ -15,7 +15,6 @@ class TestDependencyGraph(unittest.TestCase):
     def test_double_add(self):
         dg = StackDependencyGraph()
         dg.add_node('node1')
-        self.assertRaises(KeyError, dg.add_node, 'node1')
 
     def test_add_relations(self):
         dg = StackDependencyGraph()
@@ -31,8 +30,8 @@ class TestDependencyGraph(unittest.TestCase):
         dg = StackDependencyGraph()
         dg.add_node('node1')
         dg.add_node('node2')
-        self.assertRaises(KeyError, dg.add_dependency, 'node2', 'node3')
-        self.assertRaises(KeyError, dg.add_dependency, 'node3', 'node2')
+        dg.add_dependency('node2', 'node3')
+        dg.add_dependency('node3', 'node2')
 
     def test_mutual_dependency(self):
         dg = StackDependencyGraph()

@@ -1,4 +1,5 @@
 import re
+import boto.cloudformation
 
 def parse_sns_arn(arn):
     """
@@ -19,3 +20,8 @@ def parse_sns_arn(arn):
         raise ValueError("Argument '%s' doesn't appear to be a valid Amazon SNS ARN", arn)
 
     return r.groupdict()
+
+def is_region_supported(value):
+        if not value in [r.name for r in boto.cloudformation.regions()]:
+            return False
+        return True

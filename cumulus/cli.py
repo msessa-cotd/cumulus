@@ -1,7 +1,8 @@
 import sys
 import logging
-import logging.config
 import argparse
+
+from .configparsers import YamlConfigParser
 
 def cli_main(argv=None):
 
@@ -10,7 +11,7 @@ def cli_main(argv=None):
 
     conf_parser = argparse.ArgumentParser(description=DESCRIPTION)
     conf_parser.add_argument("-y", "--yamlfile", dest="yamlfile",
-                             required=True, type=argparse.FileType('r'),
+                             required=True,
                              help="Existing YAML file with a Cumulo stack definition")
     conf_parser.add_argument("-l", "--log", dest="loglevel", metavar='LEVEL',
                              required=False, choices=LOG_LEVELS, default="INFO",
@@ -35,7 +36,6 @@ def cli_main(argv=None):
     parser_delete = subparsers.add_parser('delete', help='Delete stacks on CloudFormation')
     parser_delete.add_argument("-s", "--stack", dest="stackname", required=False, help="Select a specific stack")
 
-    log.debug("Parsing command line arguments")
     args = conf_parser.parse_args(args=argv)
 
     # Setup logging
@@ -51,9 +51,13 @@ def cli_main(argv=None):
     cumulus_log.addHandler(log_handler)
     cumulus_log.setLevel(cumulus_numeric_level)
 
-    boto_log = logging.getLoggerClass('boto')
-    cumulus_log.addHandler(log_handler)
-    cumulus_log.setLevel(boto_numeric_level)
+    boto_log = logging.getLogger('boto')
+    boto_log.addHandler(log_handler)
+    boto_log.setLevel(boto_numeric_level)
 
-
+    # Read configuration file
+    yamlconfig = YamlConfigParser(args.yamlfile)
+    if yamlconfig:
+        # Use the YAML config parser to instantiate a CumuloStack object
+        cs = yamlconfig.get_configured_obj()
 

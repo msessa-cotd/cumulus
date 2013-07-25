@@ -6,9 +6,15 @@ class CumulusException(Exception):
     pass
 
 
-class UnconfiguredError(CumulusException):
+class ParameterError(CumulusException):
     """
-    This exception is raised when a certain operation is requested while the object is in an unconfigured state
+    This exception is raised when an invalid operation is performed against a stack parameter
+    """
+    pass
+
+class ConfigurationError(CumulusException):
+    """
+    This exception is raised when an error is encountered during configuration processing
     """
     pass
 
