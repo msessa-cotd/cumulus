@@ -3,6 +3,7 @@ import logging
 import argparse
 
 from .configparsers import YamlConfigParser
+from .cumulo import CumuloStack
 
 def cli_main(argv=None):
 
@@ -24,6 +25,7 @@ def cli_main(argv=None):
 
     parser_status = subparsers.add_parser('status', help='Print a status summary of the configured stacks')
     parser_status.add_argument("-s", "--stack", dest="stackname", required=False, help="Select a specific stack")
+    parser_status.set_defaults(func=action_status)
 
     parser_create = subparsers.add_parser('create', help='Create stacks on CloudFormation')
     parser_create.add_argument("-s", "--stack", dest="stackname", required=False, help="Select a specific stack")
@@ -60,4 +62,17 @@ def cli_main(argv=None):
     if yamlconfig:
         # Use the YAML config parser to instantiate a CumuloStack object
         cs = yamlconfig.get_configured_obj()
+        if args.func(cs, args) == True:
+            sys.exit(0)
+        else:
+            sys.exit(1)
 
+def action_status(cumulo, args):
+    """
+
+    :param cumulo: doc
+    :type cumulo: CumuloStack
+    :param stack: doc
+    :type stack: str
+    """
+    cumulo.get_substacks_status()

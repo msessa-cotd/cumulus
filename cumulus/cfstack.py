@@ -11,7 +11,7 @@ log.addHandler(logging.NullHandler())
 
 class CFStack(object):
 
-    def __init__(self, name, region, json_template):
+    def __init__(self, name, region, json_template, cf_name=None):
         """
         Instantiate a new CFStack object.
         A CFStack is an actual representation of CloudFormation stack that will be managed.
@@ -21,6 +21,8 @@ class CFStack(object):
         :type name: str
         :param json_template: A path to a local JSON file or a valid S3 URL
         :type json_template: str
+        :param cf_name: Override the stack id on cloudformation. Default is the same as the name parameter
+        :type cf_name: str
         :return: A CFStack object
         :rtype: cumulus.cfstack.CFStack
         """
@@ -33,6 +35,10 @@ class CFStack(object):
         self.stack_obj = None
         self.dependencies = list()
         self.template_dict = dict()
+        if cf_name:
+            self.cf_name = cf_name
+        else:
+            self.cf_name = name
 
         # Initialise private objects
         self._sns_topics = list()

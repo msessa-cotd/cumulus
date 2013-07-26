@@ -10,7 +10,7 @@ log.addHandler(logging.NullHandler())
 # Error messages formats
 ERRMSG_MULTIPLEROOTS = "Only one root object is expected, found %d"
 ERRMSG_MISSDIRECTIVE = "Missing mandatory config directive '%s' in object '%s'"
-ERRMSG_INCORRECTTYPE = "Config directive '%s' in object '%s' must be a %s type"
+ERRMSG_INCORRECTTYPE = "Config directive '%s' in object '%s' must be a %s type. Found %s type"
 ERRMSG_DEPFRMUNKNOWN = "Dependency '%s' in stack '%s' refers to an unknown node"
 ERRMSG_PARAMUNEXPECT = "Parameter '%s' in stack '%s' is unexpected"
 
@@ -54,8 +54,14 @@ class YamlConfigParser(object):
             cf_template = stack_dict.get('cf_template')
             self._v_type(cf_template, str, 'cf_template', stack_id, 'str')
 
+            # If the substack name is the same as the cumulo name then don't use a suffix
+            if stack_id == cumulo_name:
+                cf_name = stack_id
+            else:
+                cf_name = "%s-%s" % (cumulo_name, stack_id)
+
             # Initialise a new CFStack object
-            cfs = CFStack(name=stack_id, region=region, json_template=cf_template)
+            cfs = CFStack(name=stack_id, region=region, json_template=cf_template, cf_name=cf_name)
 
             # Register explicit dependencies
             stack_deps = stack_dict.get('depends')
@@ -74,7 +80,7 @@ class YamlConfigParser(object):
                 for param_id, param_dict in stack_params.iteritems():
                     log.debug("Registering parameter %s for stack %s", param_id, stack_id)
                     param_value = param_dict.get('value')
-                    self._v_type(param_value, str, 'value', "%s/params/%s" % (stack_id, param_id), 'dict',
+                    self._v_type(param_value, str, 'value', "%s/params/%s" % (stack_id, param_id), 'str',
                                  required=False)
                     if param_value:
                         # 'value' attribute is set, this must be a static value
@@ -83,20 +89,22 @@ class YamlConfigParser(object):
                         param_source = param_dict.get('source')
                         param_type = param_dict.get('type')
                         param_variable = param_dict.get('variable')
-                        self._v_type(param_source, str, 'source', "%s/params/%s" % (stack_id, param_id), 'dict')
-                        self._v_type(param_type, str, 'type', "%s/params/%s" % (stack_id, param_id), 'dict')
-                        self._v_type(param_variable, str, 'variable', "%s/params/%s" % (stack_id, param_id), 'dict')
+                        self._v_type(param_source, str, 'source', "%s/params/%s" % (stack_id, param_id), 'str')
+                        self._v_type(param_type, str, 'type', "%s/params/%s" % (stack_id, param_id), 'str')
+                        self._v_type(param_variable, str, 'variable', "%s/params/%s" % (stack_id, param_id), 'str')
                         cfs.set_parameter_dynamic(param_id, param_type, param_source, param_variable)
 
 
             # Finally, register the CFStack object with the CumuloStack
             cumulo.add_substack(cfs)
 
+        return cumulo
+
     @staticmethod
     def _v_type(obj, pyt_type, confname, confsection, strtype, required=True):
         if obj:
             if not isinstance(obj, pyt_type):
-                raise ConfigurationError(ERRMSG_INCORRECTTYPE % (confname, confsection, strtype))
+                raise ConfigurationError(ERRMSG_INCORRECTTYPE % (confname, confsection, strtype, type(obj)))
         else:
             if required:
                 raise ConfigurationError(ERRMSG_MISSDIRECTIVE % (confname, confsection))
